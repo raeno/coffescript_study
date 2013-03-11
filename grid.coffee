@@ -25,11 +25,13 @@ class Grid
   		0 <= x < @size and 0 <= y < @size
 
   	swap: ({x1, y1, x2, y2}) ->
-  		[ @tiles[x1,y1], @tiles[x2,y2] ] = [ @tiles[x2,y2], @tiles[x1,y1] ]
+  		[ @tiles[x1][y1], @tiles[x2][y2] ] = [ @tiles[x2][y2], @tiles[x1][y1] ]
   	rows: ->
   		for x in [0...@size]
   			for y in [0...@size]
   				@tiles[y][x]
+
+  	
 
 root = exports ? window
 root.Grid = Grid

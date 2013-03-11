@@ -3,16 +3,15 @@ tileValues =
   M: 3, N: 1, O: 1, P: 3, Q: 10, R: 1, S: 1, T: 1, U: 1, V: 4, W: 4, X: 8,
   Y: 4, Z: 10
 
-scoreMove = (grid, swapCoordinates) ->
+scoreMove = (dictionary, swapCoordinates) ->
   {x1, x2, y1, y2} = swapCoordinates
-  words = wordsThroughTile(grid, x1, y1).concat wordsThroughTile(grid, x2, y2)
+  words = dictionary.wordsThroughTile(x1, y1).concat dictionary.wordsThroughTile(x2, y2)
   moveScore = multiplier = 0
   newWords = []
-  for word in words when word not in usedWords and word not in newWords
+  for word in words when dictionary.isWord(word) and dictionary.markUsed(word)
     multiplier++
     moveScore += tileValues[letter] for letter in word
     newWords.push word
-  usedWords = usedWords.concat newWords
   moveScore *= multiplier
   {moveScore, newWords}
 
@@ -27,7 +26,7 @@ class Player
 	makeMove: (swapCoordinates) ->
 		@dictionary.grid.swap swapCoordinates
 		@moveCount++
-		result += scoreMove @dictionary, swapCoordinates
+		result = scoreMove @dictionary, swapCoordinates
 		@score += result.moveScore
 		result
 
