@@ -8,44 +8,8 @@ Array::min = ->
   @forEach (current, i, a) -> min = current  if current < min
   min
 
-#START:readFile
-fs = require 'fs'
-owl2 = fs.readFileSync 'OWL2.txt', 'utf8'
-#END:readFile
 
-#START:wordList
-wordList = owl2.match /^(\w+)/mg
-#END:wordList
-#START:wordListReduction
-minWordLength = (word.length for word in wordList).min()
 
-wordList = (word for word in wordList when word.length <= GRID_SIZE)
-#END:wordListReduction
-
-#START:isWord
-isWord = (str) ->
-  str in wordList
-#END:isWord
-
-#START:randomLetter
-# Probabilities are taken from Scrabble, except that there are no blanks.
-# See http://www.hasbro.com/scrabble/en_US/faqGeneral.cfm
-tileCounts =
-  A: 9, B: 2, C: 2, D: 4, E: 12, F: 2, G: 3, H: 2, I: 9, J: 1, K: 1, L: 4
-  M: 2, N: 6, O: 8, P: 2, Q: 1, R: 6, S: 4, T: 6, U: 4, V: 2, W: 2, X: 1
-  Y: 2, Z: 1
-totalTiles = 0
-totalTiles += count for letter, count of tileCounts
-
-# JavaScript hashes are unordered, so we need to make our own key array:
-alphabet = (letter for letter of tileCounts).sort()
-
-randomLetter = ->  
-  randomNumber = Math.ceil Math.random() * totalTiles
-  x = 1
-  for letter in alphabet
-    x += tileCounts[letter]
-    return letter if x > randomNumber
 #END:randomLetter
 
 #START:grid
@@ -96,30 +60,6 @@ scoreMove = (grid, swapCoordinates) ->
 inRange = (x, y) ->
   0 <= x < GRID_SIZE and 0 <= y < GRID_SIZE
 
-#START:wordsThroughTile
-wordsThroughTile = (grid, x, y) ->
-  strings = []
-  for length in [minWordLength..GRID_SIZE]
-    range = length - 1
-    addTiles = (func) ->
-      strings.push (func(i) for i in [0..range]).join ''
-    for offset in [0...length]
-      # Vertical
-      if inRange(x - offset, y) and inRange(x - offset + range, y)
-        addTiles (i) -> grid[x - offset + i][y]
-      # Horizontal
-      if inRange(x, y - offset) and inRange(x, y - offset + range)
-        addTiles (i) -> grid[x][y - offset + i]
-      # Diagonal (upper-left to lower-right)
-      if inRange(x - offset, y - offset) and
-         inRange(x - offset + range, y - offset + range)
-        addTiles (i) -> grid[x - offset + i][y - offset + i]
-      # Diagonal (lower-left to upper-right)
-      if inRange(x - offset, y + offset) and
-         inRange(x - offset + range, y + offset - range)
-        addTiles (i) -> grid[x - offset + i][y + offset - i]
-  str for str in strings when isWord str
-#END:wordsThroughTile
 
 #START:gameStart
 console.log "Welcome to 5x5!"
