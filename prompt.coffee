@@ -1,7 +1,12 @@
 #START:constants
 GRID_SIZE = 5
-MIN_WORD_LENGTH = 2
-#END:constants
+
+
+
+Array::min = ->
+  min = this[0]
+  @forEach (current, i, a) -> min = current  if current < min
+  min
 
 #START:readFile
 fs = require 'fs'
@@ -12,6 +17,8 @@ owl2 = fs.readFileSync 'OWL2.txt', 'utf8'
 wordList = owl2.match /^(\w+)/mg
 #END:wordList
 #START:wordListReduction
+minWordLength = (word.length for word in wordList).min()
+
 wordList = (word for word in wordList when word.length <= GRID_SIZE)
 #END:wordListReduction
 
@@ -92,7 +99,7 @@ inRange = (x, y) ->
 #START:wordsThroughTile
 wordsThroughTile = (grid, x, y) ->
   strings = []
-  for length in [MIN_WORD_LENGTH..GRID_SIZE]
+  for length in [minWordLength..GRID_SIZE]
     range = length - 1
     addTiles = (func) ->
       strings.push (func(i) for i in [0..range]).join ''
